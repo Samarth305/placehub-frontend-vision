@@ -9,38 +9,206 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as JobsRouteImport } from './routes/jobs'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StudentProfileRouteImport } from './routes/student.profile'
+import { Route as StudentDashboardRouteImport } from './routes/student.dashboard'
+import { Route as StudentApplicationsRouteImport } from './routes/student.applications'
+import { Route as CompanyJobsRouteImport } from './routes/company.jobs'
+import { Route as CompanyDashboardRouteImport } from './routes/company.dashboard'
+import { Route as CompanyApplicantsRouteImport } from './routes/company.applicants'
+import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as AdminCompaniesRouteImport } from './routes/admin.companies'
 
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JobsRoute = JobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StudentProfileRoute = StudentProfileRouteImport.update({
+  id: '/student/profile',
+  path: '/student/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentDashboardRoute = StudentDashboardRouteImport.update({
+  id: '/student/dashboard',
+  path: '/student/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudentApplicationsRoute = StudentApplicationsRouteImport.update({
+  id: '/student/applications',
+  path: '/student/applications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompanyJobsRoute = CompanyJobsRouteImport.update({
+  id: '/company/jobs',
+  path: '/company/jobs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompanyDashboardRoute = CompanyDashboardRouteImport.update({
+  id: '/company/dashboard',
+  path: '/company/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompanyApplicantsRoute = CompanyApplicantsRouteImport.update({
+  id: '/company/applicants',
+  path: '/company/applicants',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/admin/dashboard',
+  path: '/admin/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminCompaniesRoute = AdminCompaniesRouteImport.update({
+  id: '/admin/companies',
+  path: '/admin/companies',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/jobs': typeof JobsRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/admin/companies': typeof AdminCompaniesRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/company/applicants': typeof CompanyApplicantsRoute
+  '/company/dashboard': typeof CompanyDashboardRoute
+  '/company/jobs': typeof CompanyJobsRoute
+  '/student/applications': typeof StudentApplicationsRoute
+  '/student/dashboard': typeof StudentDashboardRoute
+  '/student/profile': typeof StudentProfileRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/jobs': typeof JobsRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/admin/companies': typeof AdminCompaniesRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/company/applicants': typeof CompanyApplicantsRoute
+  '/company/dashboard': typeof CompanyDashboardRoute
+  '/company/jobs': typeof CompanyJobsRoute
+  '/student/applications': typeof StudentApplicationsRoute
+  '/student/dashboard': typeof StudentDashboardRoute
+  '/student/profile': typeof StudentProfileRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/jobs': typeof JobsRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/admin/companies': typeof AdminCompaniesRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/company/applicants': typeof CompanyApplicantsRoute
+  '/company/dashboard': typeof CompanyDashboardRoute
+  '/company/jobs': typeof CompanyJobsRoute
+  '/student/applications': typeof StudentApplicationsRoute
+  '/student/dashboard': typeof StudentDashboardRoute
+  '/student/profile': typeof StudentProfileRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/jobs'
+    | '/login'
+    | '/signup'
+    | '/admin/companies'
+    | '/admin/dashboard'
+    | '/company/applicants'
+    | '/company/dashboard'
+    | '/company/jobs'
+    | '/student/applications'
+    | '/student/dashboard'
+    | '/student/profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/jobs'
+    | '/login'
+    | '/signup'
+    | '/admin/companies'
+    | '/admin/dashboard'
+    | '/company/applicants'
+    | '/company/dashboard'
+    | '/company/jobs'
+    | '/student/applications'
+    | '/student/dashboard'
+    | '/student/profile'
+  id:
+    | '__root__'
+    | '/'
+    | '/jobs'
+    | '/login'
+    | '/signup'
+    | '/admin/companies'
+    | '/admin/dashboard'
+    | '/company/applicants'
+    | '/company/dashboard'
+    | '/company/jobs'
+    | '/student/applications'
+    | '/student/dashboard'
+    | '/student/profile'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  JobsRoute: typeof JobsRoute
+  LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
+  AdminCompaniesRoute: typeof AdminCompaniesRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  CompanyApplicantsRoute: typeof CompanyApplicantsRoute
+  CompanyDashboardRoute: typeof CompanyDashboardRoute
+  CompanyJobsRoute: typeof CompanyJobsRoute
+  StudentApplicationsRoute: typeof StudentApplicationsRoute
+  StudentDashboardRoute: typeof StudentDashboardRoute
+  StudentProfileRoute: typeof StudentProfileRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/jobs': {
+      id: '/jobs'
+      path: '/jobs'
+      fullPath: '/jobs'
+      preLoaderRoute: typeof JobsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +216,78 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/student/profile': {
+      id: '/student/profile'
+      path: '/student/profile'
+      fullPath: '/student/profile'
+      preLoaderRoute: typeof StudentProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/student/dashboard': {
+      id: '/student/dashboard'
+      path: '/student/dashboard'
+      fullPath: '/student/dashboard'
+      preLoaderRoute: typeof StudentDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/student/applications': {
+      id: '/student/applications'
+      path: '/student/applications'
+      fullPath: '/student/applications'
+      preLoaderRoute: typeof StudentApplicationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/company/jobs': {
+      id: '/company/jobs'
+      path: '/company/jobs'
+      fullPath: '/company/jobs'
+      preLoaderRoute: typeof CompanyJobsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/company/dashboard': {
+      id: '/company/dashboard'
+      path: '/company/dashboard'
+      fullPath: '/company/dashboard'
+      preLoaderRoute: typeof CompanyDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/company/applicants': {
+      id: '/company/applicants'
+      path: '/company/applicants'
+      fullPath: '/company/applicants'
+      preLoaderRoute: typeof CompanyApplicantsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/companies': {
+      id: '/admin/companies'
+      path: '/admin/companies'
+      fullPath: '/admin/companies'
+      preLoaderRoute: typeof AdminCompaniesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  JobsRoute: JobsRoute,
+  LoginRoute: LoginRoute,
+  SignupRoute: SignupRoute,
+  AdminCompaniesRoute: AdminCompaniesRoute,
+  AdminDashboardRoute: AdminDashboardRoute,
+  CompanyApplicantsRoute: CompanyApplicantsRoute,
+  CompanyDashboardRoute: CompanyDashboardRoute,
+  CompanyJobsRoute: CompanyJobsRoute,
+  StudentApplicationsRoute: StudentApplicationsRoute,
+  StudentDashboardRoute: StudentDashboardRoute,
+  StudentProfileRoute: StudentProfileRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

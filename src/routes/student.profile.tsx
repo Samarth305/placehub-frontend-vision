@@ -1,0 +1,83 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { GraduationCap, Mail, MapPin, Link2, Github, Linkedin } from "lucide-react";
+
+export const Route = createFileRoute("/student/profile")({
+  head: () => ({ meta: [{ title: "Profile — PlaceHub" }] }),
+  component: ProfilePage,
+});
+
+function ProfilePage() {
+  return (
+    <DashboardLayout role="student" title="Your profile" subtitle="Keep your profile up to date to get noticed.">
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="border-border/60 bg-card p-6 shadow-card lg:col-span-1">
+          <div className="flex flex-col items-center text-center">
+            <Avatar className="h-20 w-20">
+              <AvatarFallback className="bg-gradient-primary text-xl text-white">AL</AvatarFallback>
+            </Avatar>
+            <div className="mt-4 text-lg font-semibold">Ada Lovelace</div>
+            <div className="text-sm text-muted-foreground">Computer Science · Final Year</div>
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1"><GraduationCap className="h-3.5 w-3.5" /> IIT Bombay</span>
+              <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> Mumbai, IN</span>
+            </div>
+            <div className="mt-5 flex w-full gap-2">
+              <Button className="flex-1 bg-gradient-primary hover:opacity-90">Edit profile</Button>
+              <Button variant="outline" className="border-border/60">Resume</Button>
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-3 border-t border-border/60 pt-5 text-sm">
+            <div className="flex items-center gap-3 text-muted-foreground"><Mail className="h-4 w-4" /> ada@iitb.ac.in</div>
+            <div className="flex items-center gap-3 text-muted-foreground"><Linkedin className="h-4 w-4" /> linkedin.com/in/ada</div>
+            <div className="flex items-center gap-3 text-muted-foreground"><Github className="h-4 w-4" /> github.com/ada</div>
+            <div className="flex items-center gap-3 text-muted-foreground"><Link2 className="h-4 w-4" /> ada.dev</div>
+          </div>
+        </Card>
+
+        <Card className="border-border/60 bg-card p-6 shadow-card lg:col-span-2">
+          <div className="text-sm font-semibold">Personal information</div>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div className="space-y-2"><Label>Full name</Label><Input defaultValue="Ada Lovelace" className="border-border/60 bg-secondary/30" /></div>
+            <div className="space-y-2"><Label>Email</Label><Input defaultValue="ada@iitb.ac.in" className="border-border/60 bg-secondary/30" /></div>
+            <div className="space-y-2"><Label>University</Label><Input defaultValue="IIT Bombay" className="border-border/60 bg-secondary/30" /></div>
+            <div className="space-y-2"><Label>Degree</Label><Input defaultValue="B.Tech, Computer Science" className="border-border/60 bg-secondary/30" /></div>
+            <div className="space-y-2"><Label>Graduation year</Label><Input defaultValue="2026" className="border-border/60 bg-secondary/30" /></div>
+            <div className="space-y-2"><Label>CGPA</Label><Input defaultValue="9.1" className="border-border/60 bg-secondary/30" /></div>
+          </div>
+
+          <div className="mt-6 space-y-2">
+            <Label>About</Label>
+            <Textarea
+              rows={4}
+              defaultValue="Final-year CS student passionate about distributed systems, design, and shipping product. Looking for full-time SWE roles starting summer 2026."
+              className="border-border/60 bg-secondary/30"
+            />
+          </div>
+
+          <div className="mt-6">
+            <Label>Skills</Label>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {["TypeScript", "React", "Node.js", "Postgres", "Go", "Figma", "System Design", "Distributed Systems"].map((s) => (
+                <Badge key={s} variant="secondary" className="bg-secondary/60 text-foreground/80">{s}</Badge>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-6 flex justify-end gap-2">
+            <Button variant="outline" className="border-border/60">Cancel</Button>
+            <Button className="bg-gradient-primary hover:opacity-90">Save changes</Button>
+          </div>
+        </Card>
+      </div>
+    </DashboardLayout>
+  );
+}
