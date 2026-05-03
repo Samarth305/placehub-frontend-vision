@@ -2,41 +2,96 @@ import { Briefcase, MapPin, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { Job } from "@/lib/mock-data";
+import { applyJobs } from "@/services/job.services";
+import { useNavigate } from "@tanstack/react-router";
 
-export function JobCard({ job }: { job: Job }) {
+export function JobCard({ job }: { job: any }) {
+  const navigate = useNavigate();
+
+  const handleApply = async () => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if (!token) {
+      alert("Please login first");
+      navigate({ to: "/login" });
+      return;
+    }
+
+    if (role !== "student") {
+      alert("Only students can apply");
+      return;
+    }
+
+    try {
+      await applyJobs(job.jobId);
+      alert("Applied successfully!");
+    } catch (err: any) {
+      alert(err.response?.data?.error || "Apply failed");
+    }
+  };
+
   return (
-    <Card className="group flex flex-col gap-4 border-border/60 bg-card p-5 shadow-card transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-elegant">
+    <Card className="group flex flex-col gap-4 border-border/60 bg-card p-5 shadow-card">
       <div className="flex items-start gap-4">
-        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gradient-primary text-base font-semibold text-white shadow-glow">
-          {job.logo}
+        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-gradient-primary text-white font-semibold">
+          {job.company?.name?.charAt(0)}
         </div>
+
         <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-2">
-            <h3 className="truncate text-base font-semibold tracking-tight">{job.title}</h3>
-            <span className="text-xs text-muted-foreground">{job.posted}</span>
+          <div className="flex items-center justify-between">
+            <h3 className="truncate text-base font-semibold">
+              {job.role}
+            </h3>
+
+            <span className="text-xs text-muted-foreground">
+              New
+            </span>
           </div>
-          <div className="text-sm text-muted-foreground">{job.company}</div>
+
+          <div className="text-sm text-muted-foreground">
+            {job.company?.name}
+          </div>
         </div>
       </div>
 
-      <p className="line-clamp-2 text-sm text-muted-foreground">{job.description}</p>
+      <p className="text-sm text-muted-foreground line-clamp-2">
+        Exciting opportunity for {job.role}
+      </p>
 
-      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-        <span className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />{job.location}</span>
-        <span className="inline-flex items-center gap-1.5"><Briefcase className="h-3.5 w-3.5" />{job.type}</span>
-        <span className="inline-flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" />{job.salary}</span>
+      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+        <span className="inline-flex items-center gap-1">
+          <MapPin className="h-3.5 w-3.5" />
+          {job.company?.location}
+        </span>
+
+        <span className="inline-flex items-center gap-1">
+          <Briefcase className="h-3.5 w-3.5" />
+          Full-time
+        </span>
+
+        <span className="inline-flex items-center gap-1">
+          <Clock className="h-3.5 w-3.5" />
+          ₹ {(job.ctc / 100000).toFixed(1)} LPA
+        </span>
       </div>
 
-      <div className="flex flex-wrap gap-1.5">
-        {job.tags.map((t) => (
-          <Badge key={t} variant="secondary" className="bg-secondary/60 text-foreground/80">{t}</Badge>
-        ))}
+      <div className="flex gap-2 flex-wrap">
+        <Badge>Applications: {job._count?.applications}</Badge>
       </div>
 
-      <div className="mt-1 flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">Posted by {job.company}</span>
-        <Button size="sm" className="bg-gradient-primary hover:opacity-90">Apply</Button>
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-muted-foreground">
+          Posted by {job.company?.name}
+        </span>
+
+        <Button
+          size="sm"
+          className="bg-gradient-primary"
+          onClick={handleApply}
+        >
+          Apply
+        </Button>
       </div>
     </Card>
   );

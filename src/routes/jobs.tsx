@@ -3,15 +3,17 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { JobCard } from "@/components/jobs/JobCard";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Search, MapPin, Filter, BadgeDollarSign, Briefcase } from "lucide-react";
-import { jobs } from "@/lib/mock-data";
+import { useEffect } from "react";
+// import { jobs } from "@/lib/mock-data";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { getJobs } from "@/services/job.services";
 
 export const Route = createFileRoute("/jobs")({
   head: () => ({ meta: [{ title: "Jobs — PlaceHub" }, { name: "description", content: "Browse curated jobs and internships from top companies." }] }),
@@ -21,20 +23,70 @@ export const Route = createFileRoute("/jobs")({
 const types = ["All", "Full-time", "Internship", "Contract"] as const;
 
 function JobsPage() {
+  const [jobs,setJobs] = useState<any[]>([]);
+  const [loading , setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [loc, setLoc] = useState("all");
-  const [type, setType] = useState<(typeof types)[number]>("All");
+  // const [type, setType] = useState<(typeof types)[number]>("All");
   const [minSal, setMinSal] = useState([60]);
+  const [sortBy, setSortBy] = useState("recent");
 
-  const locations = useMemo(() => Array.from(new Set(jobs.map((j) => j.location))), []);
+  useEffect(()=>{
+    loadJobs();
+  },[]);
 
-  const filtered = jobs.filter((j) => {
-    const okQ = !q || (j.title + j.company + j.tags.join(" ")).toLowerCase().includes(q.toLowerCase());
-    const okL = loc === "all" || j.location === loc;
-    const okT = type === "All" || j.type === type;
-    const okS = j.salaryNum >= minSal[0];
-    return okQ && okL && okT && okS;
+  const loadJobs = async () => {
+    try {
+      const data = await getJobs();
+      console.log(data);
+      setJobs(data.jobs);
+    } catch (err) {
+      console.log(err);
+    } finally{
+      setLoading(false);
+    }
+  }
+
+  const locations = useMemo(()=>
+    Array.from(
+      new Set(jobs.map((j)=>j.company?.location))
+    ),[jobs]);
+
+  const filtered = [...jobs].filter((j)=>{
+    const okQ =
+      !q ||
+      (j.role + j.company?.name)
+        .toLowerCase()
+        .includes(q.toLowerCase());
+
+    const okL =
+      loc === "all" ||
+      j.company?.location === loc;
+
+    const okS =
+      Number(j.ctc) >= minSal[0] * 100000;
+
+    return okQ && okL && okS;
+
+  }).sort((a,b)=>{
+    if(sortBy==="recent"){
+      return (new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+    if(sortBy==="salary"){
+      return b.ctc-a.ctc;
+    }
+    return 0;
   });
+
+  if(loading){
+    return (
+      <PublicLayout>
+        <div className="p-10 text-center">
+          Loading jobs...
+        </div>
+      </PublicLayout>
+    );
+  }
 
   return (
     <PublicLayout>
@@ -65,7 +117,7 @@ function JobsPage() {
                 {locations.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}
               </SelectContent>
             </Select>
-            <Button className="h-11 bg-gradient-primary shadow-elegant hover:opacity-90 md:w-auto">Search</Button>
+            {/* <Button className="h-11 bg-gradient-primary shadow-elegant hover:opacity-90 md:w-auto">Search</Button> */}
           </Card>
         </div>
       </div>
@@ -78,10 +130,10 @@ function JobsPage() {
             </div>
 
             <div className="mb-6">
-              <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {/* <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 <Briefcase className="h-3.5 w-3.5" /> Type
-              </div>
-              <div className="flex flex-wrap gap-1.5">
+              </div> */}
+              {/* <div className="flex flex-wrap gap-1.5">
                 {types.map((t) => (
                   <button
                     key={t}
@@ -95,7 +147,7 @@ function JobsPage() {
                     {t}
                   </button>
                 ))}
-              </div>
+              </div> */}
             </div>
 
             <div className="mb-6">
@@ -103,7 +155,7 @@ function JobsPage() {
                 <BadgeDollarSign className="h-3.5 w-3.5" /> Min salary (k/yr)
               </div>
               <Slider value={minSal} onValueChange={setMinSal} min={0} max={200} step={5} />
-              <div className="mt-2 text-xs text-muted-foreground">${minSal[0]}k+</div>
+              <div className="mt-2 text-xs text-muted-foreground">₹{minSal[0]}L+</div>
             </div>
 
             <div>
@@ -122,7 +174,7 @@ function JobsPage() {
             <div className="text-sm text-muted-foreground">
               <span className="font-medium text-foreground">{filtered.length}</span> roles found
             </div>
-            <Select defaultValue="recent">
+            <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="h-9 w-44 border-border/60 bg-secondary/40">
                 <SelectValue />
               </SelectTrigger>
@@ -134,7 +186,7 @@ function JobsPage() {
             </Select>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
-            {filtered.map((j) => <JobCard key={j.id} job={j} />)}
+            {filtered.map((j) => <JobCard key={j.jobId} job={j} />)}
           </div>
           {filtered.length === 0 && (
             <Card className="border-border/60 bg-card p-12 text-center shadow-card">
