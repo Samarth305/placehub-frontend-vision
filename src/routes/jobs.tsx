@@ -28,7 +28,7 @@ function JobsPage() {
   const [q, setQ] = useState("");
   const [loc, setLoc] = useState("all");
   // const [type, setType] = useState<(typeof types)[number]>("All");
-  const [minSal, setMinSal] = useState([60]);
+  const [minSal, setMinSal] = useState([0]);
   const [sortBy, setSortBy] = useState("recent");
 
   useEffect(()=>{
