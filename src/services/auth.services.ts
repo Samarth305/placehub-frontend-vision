@@ -46,3 +46,11 @@ export const signupCompany = async (data:{
     const res = await api.post("/company/signup",data);
     return res.data;
 }
+
+export const changePassword = async (data:{
+    oldPassword : String;
+    newPassword : String;
+}) => {
+    const res = await api.patch("/auth/change-password",data);
+    return res.data;
+}
