@@ -35,6 +35,7 @@ function LoginPage() {
 
       localStorage.setItem("token",res.token);
       localStorage.setItem("role",res.role);
+      window.dispatchEvent(new Event("storage"));
 
       if(role==='student')navigate({to:"/student/dashboard"});
       if(role==='company')navigate({to:"/company/dashboard"});
