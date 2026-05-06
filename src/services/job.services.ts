@@ -9,3 +9,8 @@ export const applyJobs = async (jobId : String) => {
     const res = await api.post(`/jobs/apply`,{jobId});
     return res.data;
 }
+
+export const getApplications = async () => {
+    const res = await api.get("/jobs/my-applications");
+    return res.data;
+}

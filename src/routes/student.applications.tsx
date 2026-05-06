@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Search } from "lucide-react";
-import { applications } from "@/lib/mock-data";
-import { useState } from "react";
+// import { applications } from "@/lib/mock-data";
+import { useEffect, useState } from "react";
+import { getApplications } from "@/services/job.services";
 
 export const Route = createFileRoute("/student/applications")({
   head: () => ({ meta: [{ title: "Applications — PlaceHub" }] }),
@@ -18,10 +19,30 @@ const tabs = ["All", "Applied", "Shortlisted", "Interview", "Offer", "Rejected"]
 function ApplicationsPage() {
   const [tab, setTab] = useState<(typeof tabs)[number]>("All");
   const [q, setQ] = useState("");
+  const [apps, setApps] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const list = applications.filter((a) => {
-    const okT = tab === "All" || a.status === tab;
-    const okQ = !q || (a.jobTitle + a.company).toLowerCase().includes(q.toLowerCase());
+  useEffect(()=>{
+    const load = async () =>{
+      try {
+        const data = await getApplications();
+        // Handle both object { applications: [] } and raw array [] formats
+        const applicationsList = Array.isArray(data) ? data : data?.applications || [];
+        setApps(applicationsList);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  },[])
+
+  if(loading)return  <div className="p-6">Loading...</div>;
+
+  const list = apps.filter((a) => {
+    const okT = tab === "All" || a.status?.toLowerCase() === tab.toLowerCase();
+    const okQ = !q || ((a.job?.role || "") + (a.job?.company?.name || "")).toLowerCase().includes(q.toLowerCase());
     return okT && okQ;
   });
 
@@ -63,10 +84,10 @@ function ApplicationsPage() {
             <tbody className="divide-y divide-border/60">
               {list.map((a) => (
                 <tr key={a.id} className="transition-colors hover:bg-secondary/20">
-                  <td className="px-5 py-3.5 font-medium">{a.jobTitle}</td>
-                  <td className="px-5 py-3.5 text-muted-foreground">{a.company}</td>
-                  <td className="px-5 py-3.5 text-muted-foreground">{a.appliedOn}</td>
-                  <td className="px-5 py-3.5"><StatusBadge status={a.status} /></td>
+                  <td className="px-5 py-3.5 font-medium">{a.job?.role || "Position"}</td>
+                  <td className="px-5 py-3.5 text-muted-foreground">{a.job?.company?.name || "Company"}</td>
+                  <td className="px-5 py-3.5 text-muted-foreground">{a.appliedAt ? new Date(a.appliedAt).toLocaleDateString() : "N/A"}</td>
+                  <td className="px-5 py-3.5"><StatusBadge status={"Applied"} /></td>
                   <td className="px-5 py-3.5 text-right">
                     <Button size="sm" variant="ghost" className="text-primary hover:text-primary-glow">View</Button>
                   </td>
