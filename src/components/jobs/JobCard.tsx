@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { applyJobs } from "@/services/job.services";
 import { useNavigate } from "@tanstack/react-router";
 
-export function JobCard({ job }: { job: any }) {
+export function JobCard({ job , applied , onApplySuccess}: { job: any , applied: boolean , onApplySuccess:(jobId:string)=>void}) {
   const navigate = useNavigate();
 
   const handleApply = async () => {
@@ -26,6 +26,7 @@ export function JobCard({ job }: { job: any }) {
     try {
       await applyJobs(job.jobId);
       alert("Applied successfully!");
+      onApplySuccess(job.jobId);
     } catch (err: any) {
       alert(err.response?.data?.error || "Apply failed");
     }
@@ -87,10 +88,11 @@ export function JobCard({ job }: { job: any }) {
 
         <Button
           size="sm"
-          className="bg-gradient-primary"
+          className={applied ? "bg-green-600" : "bg-gradient-primary"}
           onClick={handleApply}
+          disabled={applied}
         >
-          Apply
+          {applied?"Applied":"Apply"}
         </Button>
       </div>
     </Card>

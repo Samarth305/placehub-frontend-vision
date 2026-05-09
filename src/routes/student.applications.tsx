@@ -29,6 +29,7 @@ function ApplicationsPage() {
         // Handle both object { applications: [] } and raw array [] formats
         const applicationsList = Array.isArray(data) ? data : data?.applications || [];
         setApps(applicationsList);
+        
       } catch (error) {
         console.log(error);
       } finally {

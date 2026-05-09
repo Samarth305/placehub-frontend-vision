@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { getJobs } from "@/services/job.services";
+import { getApplications } from "@/services/job.services";
 
 export const Route = createFileRoute("/jobs")({
   head: () => ({ meta: [{ title: "Jobs — PlaceHub" }, { name: "description", content: "Browse curated jobs and internships from top companies." }] }),
@@ -25,6 +26,7 @@ const types = ["All", "Full-time", "Internship", "Contract"] as const;
 function JobsPage() {
   const [jobs,setJobs] = useState<any[]>([]);
   const [loading , setLoading] = useState(true);
+  const [applied , setApplied] = useState<string[]>([]);
   const [q, setQ] = useState("");
   const [loc, setLoc] = useState("all");
   // const [type, setType] = useState<(typeof types)[number]>("All");
@@ -33,7 +35,30 @@ function JobsPage() {
 
   useEffect(()=>{
     loadJobs();
+    loadMyApplication();
   },[]);
+
+  const loadMyApplication = async () => {
+      try {
+        //get the token from the localstorage
+        const token = localStorage.getItem("token");
+
+        //if no token return
+        if(!token)return;
+
+        //if token load the applications which are applied by that user
+        const loadMyAppliedJobs = await getApplications();
+
+        const ids = loadMyAppliedJobs.applications.map(
+          (a:any) => a.jobId
+        );
+
+        //set that applications to applied status
+        setApplied(ids);
+      } catch (err) {
+        console.log(err);
+      }
+    }
 
   const loadJobs = async () => {
     try {
@@ -186,7 +211,7 @@ function JobsPage() {
             </Select>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
-            {filtered.map((j) => <JobCard key={j.jobId} job={j} />)}
+            {filtered.map((j) => <JobCard key={j.jobId} job={j} applied ={applied.includes(j.jobId)} onApplySuccess={(jobId:string)=>setApplied ((prev)=>[...prev,j.jobId])}/>)}
           </div>
           {filtered.length === 0 && (
             <Card className="border-border/60 bg-card p-12 text-center shadow-card">
