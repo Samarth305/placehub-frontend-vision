@@ -14,3 +14,13 @@ export const getApplications = async () => {
     const res = await api.get("/jobs/my-applications");
     return res.data;
 }
+
+export const createJob = async (data:any) => {
+    const res = await api.post("/company/jobs",data);
+    return res.data;
+}
+
+export const jobOpeningsOfCompany = async () => {
+    const res = await api.get("/company/viewJobs");
+    return res.data;
+}

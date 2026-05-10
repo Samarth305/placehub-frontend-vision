@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as StudentProfileRouteImport } from './routes/student.profile'
 import { Route as StudentDashboardRouteImport } from './routes/student.dashboard'
 import { Route as StudentApplicationsRouteImport } from './routes/student.applications'
+import { Route as CompanyPostJobRouteImport } from './routes/company.post-job'
 import { Route as CompanyJobsRouteImport } from './routes/company.jobs'
 import { Route as CompanyDashboardRouteImport } from './routes/company.dashboard'
 import { Route as CompanyApplicantsRouteImport } from './routes/company.applicants'
@@ -63,6 +64,11 @@ const StudentApplicationsRoute = StudentApplicationsRouteImport.update({
   path: '/student/applications',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CompanyPostJobRoute = CompanyPostJobRouteImport.update({
+  id: '/company/post-job',
+  path: '/company/post-job',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CompanyJobsRoute = CompanyJobsRouteImport.update({
   id: '/company/jobs',
   path: '/company/jobs',
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/company/applicants': typeof CompanyApplicantsRoute
   '/company/dashboard': typeof CompanyDashboardRoute
   '/company/jobs': typeof CompanyJobsRoute
+  '/company/post-job': typeof CompanyPostJobRoute
   '/student/applications': typeof StudentApplicationsRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/student/profile': typeof StudentProfileRoute
@@ -115,6 +122,7 @@ export interface FileRoutesByTo {
   '/company/applicants': typeof CompanyApplicantsRoute
   '/company/dashboard': typeof CompanyDashboardRoute
   '/company/jobs': typeof CompanyJobsRoute
+  '/company/post-job': typeof CompanyPostJobRoute
   '/student/applications': typeof StudentApplicationsRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/student/profile': typeof StudentProfileRoute
@@ -131,6 +139,7 @@ export interface FileRoutesById {
   '/company/applicants': typeof CompanyApplicantsRoute
   '/company/dashboard': typeof CompanyDashboardRoute
   '/company/jobs': typeof CompanyJobsRoute
+  '/company/post-job': typeof CompanyPostJobRoute
   '/student/applications': typeof StudentApplicationsRoute
   '/student/dashboard': typeof StudentDashboardRoute
   '/student/profile': typeof StudentProfileRoute
@@ -148,6 +157,7 @@ export interface FileRouteTypes {
     | '/company/applicants'
     | '/company/dashboard'
     | '/company/jobs'
+    | '/company/post-job'
     | '/student/applications'
     | '/student/dashboard'
     | '/student/profile'
@@ -163,6 +173,7 @@ export interface FileRouteTypes {
     | '/company/applicants'
     | '/company/dashboard'
     | '/company/jobs'
+    | '/company/post-job'
     | '/student/applications'
     | '/student/dashboard'
     | '/student/profile'
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/company/applicants'
     | '/company/dashboard'
     | '/company/jobs'
+    | '/company/post-job'
     | '/student/applications'
     | '/student/dashboard'
     | '/student/profile'
@@ -194,6 +206,7 @@ export interface RootRouteChildren {
   CompanyApplicantsRoute: typeof CompanyApplicantsRoute
   CompanyDashboardRoute: typeof CompanyDashboardRoute
   CompanyJobsRoute: typeof CompanyJobsRoute
+  CompanyPostJobRoute: typeof CompanyPostJobRoute
   StudentApplicationsRoute: typeof StudentApplicationsRoute
   StudentDashboardRoute: typeof StudentDashboardRoute
   StudentProfileRoute: typeof StudentProfileRoute
@@ -257,6 +270,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentApplicationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/company/post-job': {
+      id: '/company/post-job'
+      path: '/company/post-job'
+      fullPath: '/company/post-job'
+      preLoaderRoute: typeof CompanyPostJobRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/company/jobs': {
       id: '/company/jobs'
       path: '/company/jobs'
@@ -306,6 +326,7 @@ const rootRouteChildren: RootRouteChildren = {
   CompanyApplicantsRoute: CompanyApplicantsRoute,
   CompanyDashboardRoute: CompanyDashboardRoute,
   CompanyJobsRoute: CompanyJobsRoute,
+  CompanyPostJobRoute: CompanyPostJobRoute,
   StudentApplicationsRoute: StudentApplicationsRoute,
   StudentDashboardRoute: StudentDashboardRoute,
   StudentProfileRoute: StudentProfileRoute,
