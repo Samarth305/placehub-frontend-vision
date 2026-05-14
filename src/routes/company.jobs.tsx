@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/common/StatusBadge";
 import { Plus, MoreHorizontal } from "lucide-react";
 import { jobOpeningsOfCompany } from "@/services/job.services";
 import { useEffect, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/company/jobs")({
   head: () => ({ meta: [{ title: "Jobs — PlaceHub Company" }] }),
@@ -16,6 +17,7 @@ function CompanyJobs() {
 
   const [jobs , setJobs] = useState<any[]>([]);
   const [loading , setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(()=>{
     const loadJobs = async () => {
@@ -61,14 +63,14 @@ function CompanyJobs() {
             </thead>
             <tbody className="divide-y divide-border/60">
               {jobs.map((j) => (
-                <tr key={j.jobId} className="transition-colors hover:bg-secondary/20">
+                <tr key={j.jobId} className="transition-colors hover:bg-secondary/20" onClick={()=>navigate({to:"/company/applicants",search:{jobId:j.jobId}})}>
                   <td className="px-5 py-3.5">
                     <div className="font-medium">{j.role}</div>
                     <div className="text-xs text-muted-foreground">Posted {new Date(j.createdAt).toLocaleDateString()}</div>
                   </td>
                   <td className="px-5 py-3.5 text-muted-foreground">Full Time</td>
                   <td className="px-5 py-3.5 text-muted-foreground">{j.location}</td>
-                  <td className="px-5 py-3.5 text-muted-foreground">{j._count?.applications}</td>
+                  <td className="px-5 py-3.5 text-muted-foreground" onClick={()=>navigate({to:"/company/applicants",search:{jobId:j.jobId}})}>{j._count?.applications}</td>
                   <td className="px-5 py-3.5"><StatusBadge status={"Active"} /></td>
                   <td className="px-5 py-3.5 text-right">
                     <Button size="icon" variant="ghost"><MoreHorizontal className="h-4 w-4" /></Button>

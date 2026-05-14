@@ -24,3 +24,16 @@ export const jobOpeningsOfCompany = async () => {
     const res = await api.get("/company/viewJobs");
     return res.data;
 }
+
+export const updateApplicationStatus = async (
+    applicationId: string,
+    status: string
+) => {
+    const res = await api.patch(`/company/applications/${applicationId}/status`,{status});
+    return res.data;
+}
+
+export const getApplicants = async (jobId:String) => {
+    const res = await api.get(`/company/jobs/${jobId}/applicants`);
+    return res.data;
+}
