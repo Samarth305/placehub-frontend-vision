@@ -9,6 +9,7 @@ import { Search, Download } from "lucide-react";
 // import { applicants } from "@/lib/mock-data";
 import { useEffect, useState } from "react";
 import { getApplicants } from "@/services/job.services";
+import { updateApplicationStatus } from "@/services/job.services";
 
 export const Route = createFileRoute("/company/applicants")({
   head: () => ({ meta: [{ title: "Applicants — PlaceHub Company" }] }),
@@ -42,6 +43,23 @@ function ApplicantsPage() {
 
   if (loading) {
     return <div className="p-6">Loading...</div>;
+  }
+
+  const handleStatusUpdate = async(applicationId:string , status:string) => {
+    try {
+      await updateApplicationStatus(applicationId , status);
+      setApplicants((prev)=>prev.map(app=>app.applicationId===applicationId?{...app,status}:app));
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const handleSubmit = async (applicationId:string , status: string) => {
+    try {
+      
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   return (
@@ -88,8 +106,8 @@ function ApplicantsPage() {
                   <td className="px-5 py-3.5 text-right">
                     <div className="flex justify-end gap-2">
                       <Button size="sm" variant="ghost">View</Button>
-                      <Button size="sm" className="bg-green-600">Shortlist</Button>
-                      <Button size="sm" className="destructive">Reject</Button>
+                      <Button size="sm" className="bg-green-600" onClick={()=>handleStatusUpdate(a.applicationId,"SHORTLISTED")} disabled={a.status==="SHORTLISTED"}>{a.status==="SHORTLISTED"?"Shortlisted":"Shortlist"}</Button>
+                      <Button size="sm" className="destructive" onClick={()=>handleStatusUpdate(a.applicationId,"REJECTED")} disabled={a.status==="REJECTED"}>{a.status==="REJECTED"?"Rejected":"Reject"}</Button>
                     </div>
                   </td>
                 </tr>

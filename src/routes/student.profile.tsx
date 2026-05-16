@@ -7,7 +7,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { GraduationCap, Mail, MapPin, Link2, Github, Linkedin } from "lucide-react";
+import { GraduationCap, Mail, MapPin, Link2, Github, Linkedin, Loader2, Upload } from "lucide-react";
+import { useRef, useState } from "react";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
+import { uploadResume } from "../services/student.service";
 
 export const Route = createFileRoute("/student/profile")({
   head: () => ({ meta: [{ title: "Profile — PlaceHub" }] }),
@@ -15,6 +19,40 @@ export const Route = createFileRoute("/student/profile")({
 });
 
 function ProfilePage() {
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [uploading , setUploading] = useState(false);
+
+    const handleUploadClick = () => {
+      fileInputRef.current?.click();
+    }
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if(!file){
+        return;
+      }
+
+      if(file.type!=="application/pdf"){
+        toast.error("Please upload a PDF file");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("resume",file);
+
+      try {
+        setUploading(true);
+        const res = await uploadResume(file);
+        // console.log("Uploaded URL:", res.resumeUrl);
+        toast.success("Resume uploaded successfully!");
+      } catch (err:any) {
+        toast.error(err.response?.data?.error||"Failed to upload the resume");
+      } finally{
+        setUploading(false);
+      }
+    }
+
   return (
     <DashboardLayout role="student" title="Your profile" subtitle="Keep your profile up to date to get noticed.">
       <div className="grid gap-6 lg:grid-cols-3">
@@ -29,9 +67,18 @@ function ProfilePage() {
               <span className="inline-flex items-center gap-1"><GraduationCap className="h-3.5 w-3.5" /> IIT Bombay</span>
               <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> Mumbai, IN</span>
             </div>
+            <input type="file" ref={fileInputRef} className="hidden" accept=".pdf" onChange={handleFileChange}/>
+
             <div className="mt-5 flex w-full gap-2">
-              <Button className="flex-1 bg-gradient-primary hover:opacity-90">Edit profile</Button>
-              <Button variant="outline" className="border-border/60">Resume</Button>
+              <Button className="flex-1 bg-gradient-primary hover:opacity-90" >Edit profile</Button>
+              <Button variant="outline" className="border-border/60" onClick={handleUploadClick}
+                disabled={uploading}
+              >
+                {uploading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Upload className="mr-2 h-4 w-4" />
+                )}Resume</Button>
             </div>
           </div>
 
