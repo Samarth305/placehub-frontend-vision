@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { MiniChart } from "@/components/dashboard/MiniChart";
@@ -10,6 +10,13 @@ import { Briefcase, FileText, Trophy, Eye, ArrowRight } from "lucide-react";
 import { applications, jobs } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/student/dashboard")({
+  beforeLoad:() => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    if(!token || role !== "student"){
+      throw redirect({to:"/login"});
+    }
+  },
   head: () => ({ meta: [{ title: "Student Dashboard — PlaceHub" }] }),
   component: StudentDashboard,
 });

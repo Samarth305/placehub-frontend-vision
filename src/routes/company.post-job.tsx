@@ -1,4 +1,4 @@
-import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate, useNavigate, redirect } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,14 @@ import { cn } from "@/lib/utils";
 import { createJob } from "@/services/job.services";
 
 export const Route = createFileRoute("/company/post-job")({
+   beforeLoad: () => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if(!token || role !== "company"){
+      throw redirect({to:"/login"});
+    }
+  },
   head: () => ({ meta: [{ title: "Post a Job — PlaceHub" }] }),
   component: PostJobPage,
 });

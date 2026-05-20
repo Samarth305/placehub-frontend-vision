@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute , redirect} from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,14 @@ import { useEffect, useState } from "react";
 import { getApplications } from "@/services/job.services";
 
 export const Route = createFileRoute("/student/applications")({
+   beforeLoad: () => {
+      const token = localStorage.getItem("token");
+      const role = localStorage.getItem("role");
+  
+      if(!token || role !== "student"){
+        throw redirect({to:"/login"});
+      }
+    },
   head: () => ({ meta: [{ title: "Applications — PlaceHub" }] }),
   component: ApplicationsPage,
 });
@@ -46,6 +54,11 @@ function ApplicationsPage() {
     const okQ = !q || ((a.job?.role || "") + (a.job?.company?.name || "")).toLowerCase().includes(q.toLowerCase());
     return okT && okQ;
   });
+
+  const formatStatus = (status:string) => {
+    if(!status)return "Applied";
+    return status.charAt(0).toUpperCase()+status.slice(1).toLowerCase();
+  };
 
   return (
     <DashboardLayout role="student" title="Applications" subtitle="Track every application you've submitted.">
@@ -88,7 +101,7 @@ function ApplicationsPage() {
                   <td className="px-5 py-3.5 font-medium">{a.job?.role || "Position"}</td>
                   <td className="px-5 py-3.5 text-muted-foreground">{a.job?.company?.name || "Company"}</td>
                   <td className="px-5 py-3.5 text-muted-foreground">{a.appliedAt ? new Date(a.appliedAt).toLocaleDateString() : "N/A"}</td>
-                  <td className="px-5 py-3.5"><StatusBadge status={"Applied"} /></td>
+                  <td className="px-5 py-3.5"><StatusBadge status={formatStatus(a.status)} /></td>
                   <td className="px-5 py-3.5 text-right">
                     <Button size="sm" variant="ghost" className="text-primary hover:text-primary-glow">View</Button>
                   </td>

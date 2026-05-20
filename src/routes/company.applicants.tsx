@@ -1,4 +1,4 @@
-import { createFileRoute , useSearch} from "@tanstack/react-router";
+import { createFileRoute , useSearch , redirect} from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,14 @@ import { getApplicants } from "@/services/job.services";
 import { updateApplicationStatus } from "@/services/job.services";
 
 export const Route = createFileRoute("/company/applicants")({
+   beforeLoad: () => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if(!token || role !== "company"){
+      throw redirect({to:"/login"});
+    }
+  },
   head: () => ({ meta: [{ title: "Applicants — PlaceHub Company" }] }),
   component: ApplicantsPage,
 });
@@ -105,7 +113,13 @@ function ApplicantsPage() {
                   <td className="px-5 py-3.5"><StatusBadge status={a.status} /></td>
                   <td className="px-5 py-3.5 text-right">
                     <div className="flex justify-end gap-2">
-                      <Button size="sm" variant="ghost">View</Button>
+                     {a.student.resumeUrl?(
+                      <Button size="sm" variant="outline" asChild><a href={a.student.resumeUrl} target="_blank" rel="noopener noreferrer"> Resume</a></Button>
+                     ):(
+                       <Button size="sm" variant="outline"  disabled>No Resume</Button>
+                     )
+                      
+                     }
                       <Button size="sm" className="bg-green-600" onClick={()=>handleStatusUpdate(a.applicationId,"SHORTLISTED")} disabled={a.status==="SHORTLISTED"}>{a.status==="SHORTLISTED"?"Shortlisted":"Shortlist"}</Button>
                       <Button size="sm" className="destructive" onClick={()=>handleStatusUpdate(a.applicationId,"REJECTED")} disabled={a.status==="REJECTED"}>{a.status==="REJECTED"?"Rejected":"Reject"}</Button>
                     </div>

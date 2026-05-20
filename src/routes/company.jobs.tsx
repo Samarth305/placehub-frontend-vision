@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/company/jobs")({
+   beforeLoad: () => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if(!token || role !== "company"){
+      throw redirect({to:"/login"});
+    }
+  },
   head: () => ({ meta: [{ title: "Jobs — PlaceHub Company" }] }),
   component: CompanyJobs,
 });

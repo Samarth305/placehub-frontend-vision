@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,14 @@ import { pendingCompanies } from "@/lib/mock-data";
 import { useState } from "react";
 
 export const Route = createFileRoute("/admin/companies")({
+   beforeLoad: () => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if(!token || role !== "admin"){
+      throw redirect({to:"/login"});
+    }
+  },
   head: () => ({ meta: [{ title: "Companies — PlaceHub Admin" }] }),
   component: CompaniesApproval,
 });

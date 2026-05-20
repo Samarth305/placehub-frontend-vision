@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { MiniChart } from "@/components/dashboard/MiniChart";
@@ -10,6 +10,14 @@ import { StatusBadge } from "@/components/common/StatusBadge";
 import { applicants } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/company/dashboard")({
+   beforeLoad: () => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if(!token || role !== "company"){
+      throw redirect({to:"/login"});
+    }
+  },
   head: () => ({ meta: [{ title: "Company Dashboard — PlaceHub" }] }),
   component: CompanyDashboard,
 });

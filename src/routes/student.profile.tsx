@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,12 +8,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { GraduationCap, Mail, MapPin, Link2, Github, Linkedin, Loader2, Upload } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
-import { uploadResume } from "../services/student.service";
+import { viewProfile , uploadResume , updateProfile } from "../services/student.service";
 
 export const Route = createFileRoute("/student/profile")({
+  beforeLoad: () => {
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if(!token || role !== "student"){
+      throw redirect({to:"/login"});
+    }
+  },
   head: () => ({ meta: [{ title: "Profile — PlaceHub" }] }),
   component: ProfilePage,
 });
@@ -22,7 +30,31 @@ function ProfilePage() {
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploading , setUploading] = useState(false);
+    const [student,setStudent] = useState<any>(null);
+    const [loading,setLoading] = useState(true);
+    const [name, setName] = useState("");
+    const [cgpa, setCgpa] = useState("");
+    const [dept, setDept] = useState("");
+    const [institute, setInstitute] = useState("");
 
+    useEffect(() => {
+      const loadProfile = async () => {
+        try {
+          const data = await viewProfile();
+          setStudent(data);
+          setName(data.name || "");
+          setCgpa(data.cgpa !== null && data.cgpa !== undefined ? String(data.cgpa) : "");
+          setDept(data.dept || "");
+          setInstitute(data.institute || "");
+        } catch (err) {
+          console.log(err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      loadProfile();
+    }, []);
+    
     const handleUploadClick = () => {
       fileInputRef.current?.click();
     }
@@ -53,6 +85,37 @@ function ProfilePage() {
       }
     }
 
+    const handleSaveChanges = async () => {
+      try{
+        const parsedCgpa = parseFloat(cgpa);
+        if(!isNaN(parsedCgpa)||parsedCgpa<0||parsedCgpa>10){
+          toast.error("Please enter a valid CGPA between 0 and 10");
+          return;
+        }
+        await updateProfile({
+          name,
+          cgpa:parsedCgpa,
+          dept,
+          institute
+        });
+        toast.success("profile updated successfully");
+
+        setStudent((prev:any)=>({
+          ...prev,
+          name,
+          cgpa:parsedCgpa,
+          dept,
+          institute
+        }));
+      }catch(err:any){
+        toast.error(err.response?.data?.error || "Failed to update profile");
+      }
+    }
+
+    if(loading){
+        return <div className="p-6">Loading...</div>;
+    }
+
   return (
     <DashboardLayout role="student" title="Your profile" subtitle="Keep your profile up to date to get noticed.">
       <div className="grid gap-6 lg:grid-cols-3">
@@ -61,11 +124,11 @@ function ProfilePage() {
             <Avatar className="h-20 w-20">
               <AvatarFallback className="bg-gradient-primary text-xl text-white">AL</AvatarFallback>
             </Avatar>
-            <div className="mt-4 text-lg font-semibold">Ada Lovelace</div>
-            <div className="text-sm text-muted-foreground">Computer Science · Final Year</div>
+            <div className="mt-4 text-lg font-semibold">{student?.name}</div>
+            <div className="text-sm text-muted-foreground">{student?.dept}</div>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-1"><GraduationCap className="h-3.5 w-3.5" /> IIT Bombay</span>
-              <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> Mumbai, IN</span>
+              <span className="inline-flex items-center gap-1"><GraduationCap className="h-3.5 w-3.5" />{student?.institute}</span>
+              {/* <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> Mumbai, IN</span> */}
             </div>
             <input type="file" ref={fileInputRef} className="hidden" accept=".pdf" onChange={handleFileChange}/>
 
@@ -83,7 +146,7 @@ function ProfilePage() {
           </div>
 
           <div className="mt-6 space-y-3 border-t border-border/60 pt-5 text-sm">
-            <div className="flex items-center gap-3 text-muted-foreground"><Mail className="h-4 w-4" /> ada@iitb.ac.in</div>
+            <div className="flex items-center gap-3 text-muted-foreground"><Mail className="h-4 w-4" />{student?.email}</div>
             <div className="flex items-center gap-3 text-muted-foreground"><Linkedin className="h-4 w-4" /> linkedin.com/in/ada</div>
             <div className="flex items-center gap-3 text-muted-foreground"><Github className="h-4 w-4" /> github.com/ada</div>
             <div className="flex items-center gap-3 text-muted-foreground"><Link2 className="h-4 w-4" /> ada.dev</div>
@@ -93,12 +156,12 @@ function ProfilePage() {
         <Card className="border-border/60 bg-card p-6 shadow-card lg:col-span-2">
           <div className="text-sm font-semibold">Personal information</div>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <div className="space-y-2"><Label>Full name</Label><Input defaultValue="Ada Lovelace" className="border-border/60 bg-secondary/30" /></div>
-            <div className="space-y-2"><Label>Email</Label><Input defaultValue="ada@iitb.ac.in" className="border-border/60 bg-secondary/30" /></div>
-            <div className="space-y-2"><Label>University</Label><Input defaultValue="IIT Bombay" className="border-border/60 bg-secondary/30" /></div>
-            <div className="space-y-2"><Label>Degree</Label><Input defaultValue="B.Tech, Computer Science" className="border-border/60 bg-secondary/30" /></div>
-            <div className="space-y-2"><Label>Graduation year</Label><Input defaultValue="2026" className="border-border/60 bg-secondary/30" /></div>
-            <div className="space-y-2"><Label>CGPA</Label><Input defaultValue="9.1" className="border-border/60 bg-secondary/30" /></div>
+            <div className="space-y-2"><Label>Full name</Label><Input defaultValue={student?.name} className="border-border/60 bg-secondary/30" /></div>
+            <div className="space-y-2"><Label>Email</Label><Input defaultValue={student?.email} className="border-border/60 bg-secondary/30" /></div>
+            <div className="space-y-2"><Label>University</Label><Input defaultValue={student?.institute} className="border-border/60 bg-secondary/30" /></div>
+            <div className="space-y-2"><Label>Degree</Label><Input defaultValue={student?.dept} className="border-border/60 bg-secondary/30" /></div>
+            <div className="space-y-2"><Label>Graduation year</Label><Input defaultValue="2027" className="border-border/60 bg-secondary/30" /></div>
+            <div className="space-y-2"><Label>CGPA</Label><Input defaultValue={String(student?.cgpa)} className="border-border/60 bg-secondary/30" /></div>
           </div>
 
           <div className="mt-6 space-y-2">
