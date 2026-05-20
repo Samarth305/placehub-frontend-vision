@@ -88,7 +88,7 @@ function ProfilePage() {
     const handleSaveChanges = async () => {
       try{
         const parsedCgpa = parseFloat(cgpa);
-        if(!isNaN(parsedCgpa)||parsedCgpa<0||parsedCgpa>10){
+        if(isNaN(parsedCgpa)||parsedCgpa<0||parsedCgpa>10){
           toast.error("Please enter a valid CGPA between 0 and 10");
           return;
         }
@@ -156,12 +156,12 @@ function ProfilePage() {
         <Card className="border-border/60 bg-card p-6 shadow-card lg:col-span-2">
           <div className="text-sm font-semibold">Personal information</div>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <div className="space-y-2"><Label>Full name</Label><Input defaultValue={student?.name} className="border-border/60 bg-secondary/30" /></div>
+            <div className="space-y-2"><Label>Full name</Label><Input onChange={(e)=>setName(e.target.value)} defaultValue={student?.name} className="border-border/60 bg-secondary/30" /></div>
             <div className="space-y-2"><Label>Email</Label><Input defaultValue={student?.email} className="border-border/60 bg-secondary/30" /></div>
-            <div className="space-y-2"><Label>University</Label><Input defaultValue={student?.institute} className="border-border/60 bg-secondary/30" /></div>
-            <div className="space-y-2"><Label>Degree</Label><Input defaultValue={student?.dept} className="border-border/60 bg-secondary/30" /></div>
+            <div className="space-y-2"><Label>University</Label><Input onChange={(e)=>setInstitute(e.target.value)} defaultValue={student?.institute} className="border-border/60 bg-secondary/30" /></div>
+            <div className="space-y-2"><Label>Degree</Label><Input onChange={(e)=>setDept(e.target.value)} defaultValue={student?.dept} className="border-border/60 bg-secondary/30" /></div>
             <div className="space-y-2"><Label>Graduation year</Label><Input defaultValue="2027" className="border-border/60 bg-secondary/30" /></div>
-            <div className="space-y-2"><Label>CGPA</Label><Input defaultValue={String(student?.cgpa)} className="border-border/60 bg-secondary/30" /></div>
+            <div className="space-y-2"><Label>CGPA</Label><Input onChange={(e)=>setCgpa(e.target.value)} defaultValue={String(student?.cgpa)} className="border-border/60 bg-secondary/30" /></div>
           </div>
 
           <div className="mt-6 space-y-2">
@@ -184,7 +184,7 @@ function ProfilePage() {
 
           <div className="mt-6 flex justify-end gap-2">
             <Button variant="outline" className="border-border/60">Cancel</Button>
-            <Button className="bg-gradient-primary hover:opacity-90">Save changes</Button>
+            <Button className="bg-gradient-primary hover:opacity-90" onClick={handleSaveChanges}>Save changes</Button>
           </div>
         </Card>
       </div>

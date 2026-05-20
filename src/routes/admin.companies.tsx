@@ -4,8 +4,10 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Check, X } from "lucide-react";
-import { pendingCompanies } from "@/lib/mock-data";
-import { useState } from "react";
+// import { pendingCompanies } from "@/lib/mock-data";
+import { useState, useEffect } from "react";
+import { getPendingCompanies, updateCompanyStatus } from "@/services/admin.service";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/companies")({
    beforeLoad: () => {
@@ -22,7 +24,41 @@ export const Route = createFileRoute("/admin/companies")({
 
 function CompaniesApproval() {
   const [q, setQ] = useState("");
-  const list = pendingCompanies.filter((c) => !q || (c.name + c.industry).toLowerCase().includes(q.toLowerCase()));
+  const [pendingCompanies , setPendingCompanies] = useState<any[]>([]);
+  const [loading , setLoading] = useState(true);
+  const list = pendingCompanies.filter((c) => !q || (c.name || "").toLowerCase().includes(q.toLowerCase()));
+
+  useEffect(()=>{
+    const loadCompanies = async () => {
+      try {
+        const data = await getPendingCompanies();
+        setPendingCompanies(data);
+      } catch (error) {
+        toast.error("can not fetch pending companies");
+      } finally{
+        setLoading(false);
+      }
+    }
+    loadCompanies();
+  },[])
+
+  const handleStatusUpdate = async (id:string,status:"APPROVED"|"REJECTED") => {
+    try {
+      await updateCompanyStatus(id,status);
+      toast.success(`company ${status.toLowerCase()} successfully`);
+      setPendingCompanies((prev)=>prev.filter((c)=>c.companyId!==id));
+    } catch (err:any) {
+      toast.error(err.response?.data?.error||"company status not updated")
+    }
+  }
+
+  if (loading) {
+    return (
+      <DashboardLayout role="admin" title="Companies approval" subtitle="Review and verify new companies.">
+        <div className="p-6">Loading companies...</div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout role="admin" title="Companies approval" subtitle="Review and verify new companies before they post jobs.">
@@ -52,23 +88,23 @@ function CompaniesApproval() {
             </thead>
             <tbody className="divide-y divide-border/60">
               {list.map((c) => (
-                <tr key={c.id} className="transition-colors hover:bg-secondary/20">
+                <tr key={c.companyId} className="transition-colors hover:bg-secondary/20">
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-md bg-gradient-primary text-sm font-semibold text-white">{c.name[0]}</div>
                       <div className="font-medium">{c.name}</div>
                     </div>
                   </td>
-                  <td className="px-5 py-3.5 text-muted-foreground">{c.industry}</td>
-                  <td className="px-5 py-3.5 text-muted-foreground">{c.size}</td>
-                  <td className="px-5 py-3.5 text-muted-foreground">{c.contact}</td>
-                  <td className="px-5 py-3.5 text-muted-foreground">{c.submittedOn}</td>
+                  <td className="px-5 py-3.5 text-muted-foreground">{c.description}</td>
+                  <td className="px-5 py-3.5 text-muted-foreground">{c.location}</td>
+                  <td className="px-5 py-3.5 text-muted-foreground">{c.email}</td>
+                  <td className="px-5 py-3.5 text-muted-foreground">{new Date(c.createdAt).toLocaleDateString()}</td>
                   <td className="px-5 py-3.5 text-right">
                     <div className="flex justify-end gap-2">
-                      <Button size="sm" variant="outline" className="border-border/60">
+                      <Button size="sm" variant="outline" className="border-border/60" onClick={() => handleStatusUpdate(c.companyId, "REJECTED")}>
                         <X className="mr-1 h-3.5 w-3.5" /> Reject
                       </Button>
-                      <Button size="sm" className="bg-gradient-primary hover:opacity-90">
+                      <Button size="sm" className="bg-gradient-primary hover:opacity-90" onClick={() => handleStatusUpdate(c.companyId, "APPROVED")}>
                         <Check className="mr-1 h-3.5 w-3.5" /> Approve
                       </Button>
                     </div>

@@ -16,7 +16,7 @@ export const uploadResume = async (file: File) => {
     return res.data;
 }
 
-const updateProfile = async (data : { name: string; cgpa: number; dept: string; institute: string }) => {
+export const updateProfile = async (data : { name: string; cgpa: number; dept: string; institute: string }) => {
     const res = await api.patch("/student/editProfile",data);
     return res.data;
 }
