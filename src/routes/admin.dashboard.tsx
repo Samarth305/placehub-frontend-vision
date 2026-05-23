@@ -82,7 +82,7 @@ function AdminDashboard() {
 
       <div className="mt-6 grid gap-6 xl:grid-cols-3">
         <div className="xl:col-span-2">
-          <MiniChart title="Platform growth" subtitle="New users per month" />
+          <MiniChart title="Platform growth" subtitle="New users per month" data={stats?.chartData} />
         </div>
         <ActivityFeed />
       </div>

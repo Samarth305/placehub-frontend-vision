@@ -1,19 +1,20 @@
 import { Card } from "@/components/ui/card";
-import { chartData } from "@/lib/mock-data";
+import { chartData as mockChartData } from "@/lib/mock-data";
 
-export function MiniChart({ title, subtitle }: { title: string; subtitle?: string }) {
-  const max = Math.max(...chartData.map((d) => d.v));
+export function MiniChart({ title, subtitle, data }: { title: string; subtitle?: string; data?: any[] }) {
+  const dataToUse = data && data.length > 0 ? data : mockChartData;
+  const max = Math.max(...dataToUse.map((d) => d.v), 1); // fallback to 1 to avoid div by 0
   const w = 600;
   const h = 200;
   const pad = 24;
-  const stepX = (w - pad * 2) / (chartData.length - 1);
-  const points = chartData.map((d, i) => {
+  const stepX = (w - pad * 2) / Math.max(dataToUse.length - 1, 1);
+  const points = dataToUse.map((d, i) => {
     const x = pad + i * stepX;
     const y = h - pad - (d.v / max) * (h - pad * 2);
     return [x, y] as const;
   });
   const path = points.map(([x, y], i) => (i === 0 ? `M${x},${y}` : `L${x},${y}`)).join(" ");
-  const area = `${path} L${points[points.length - 1][0]},${h - pad} L${points[0][0]},${h - pad} Z`;
+  const area = `${path} L${points[points.length - 1]?.[0] || pad},${h - pad} L${points[0]?.[0] || pad},${h - pad} Z`;
 
   return (
     <Card className="border-border/60 bg-card p-5 shadow-card">
@@ -38,7 +39,7 @@ export function MiniChart({ title, subtitle }: { title: string; subtitle?: strin
         {points.map(([x, y], i) => (
           <circle key={i} cx={x} cy={y} r="3" fill="oklch(0.78 0.13 200)" />
         ))}
-        {chartData.map((d, i) => (
+        {dataToUse.map((d, i) => (
           <text key={d.m} x={pad + i * stepX} y={h - 6} textAnchor="middle" className="fill-muted-foreground" fontSize="10">{d.m}</text>
         ))}
       </svg>
