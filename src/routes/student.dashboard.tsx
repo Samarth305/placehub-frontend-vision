@@ -12,7 +12,8 @@ import { useEffect, useState } from "react";
 import { getStudentDashboardStats } from "../services/student.service";
 
 export const Route = createFileRoute("/student/dashboard")({
-  beforeLoad:() => {
+  beforeLoad: () => {
+    if (typeof window === 'undefined') return;
     const token = (typeof window !== 'undefined' ? localStorage.getItem("token") : null);
     const role = (typeof window !== 'undefined' ? localStorage.getItem("role") : null);
     if(!token || role !== "student"){

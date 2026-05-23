@@ -13,6 +13,7 @@ import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/admin/dashboard")({
    beforeLoad: () => {
+    if (typeof window === 'undefined') return;
     const token = (typeof window !== 'undefined' ? localStorage.getItem("token") : null);
     const role = (typeof window !== 'undefined' ? localStorage.getItem("role") : null);
 

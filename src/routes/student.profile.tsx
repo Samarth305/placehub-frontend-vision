@@ -15,6 +15,7 @@ import { viewProfile , uploadResume , updateProfile } from "../services/student.
 
 export const Route = createFileRoute("/student/profile")({
   beforeLoad: () => {
+    if (typeof window === 'undefined') return;
     const token = (typeof window !== 'undefined' ? localStorage.getItem("token") : null);
     const role = (typeof window !== 'undefined' ? localStorage.getItem("role") : null);
 

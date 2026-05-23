@@ -11,6 +11,7 @@ import { getApplications } from "@/services/job.services";
 
 export const Route = createFileRoute("/student/applications")({
    beforeLoad: () => {
+    if (typeof window === 'undefined') return;
       const token = (typeof window !== 'undefined' ? localStorage.getItem("token") : null);
       const role = (typeof window !== 'undefined' ? localStorage.getItem("role") : null);
   

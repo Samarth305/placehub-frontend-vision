@@ -11,6 +11,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/companies")({
    beforeLoad: () => {
+    if (typeof window === 'undefined') return;
     const token = (typeof window !== 'undefined' ? localStorage.getItem("token") : null);
     const role = (typeof window !== 'undefined' ? localStorage.getItem("role") : null);
 
