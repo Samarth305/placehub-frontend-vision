@@ -21,8 +21,8 @@ export function Navbar() {
   const buttonRef = useRef<HTMLDivElement>(null);
 
   const checkAuth = () => {
-    const token = localStorage.getItem("token");
-    const storedRole = localStorage.getItem("role");
+    const token = (typeof window !== 'undefined' ? localStorage.getItem("token") : null);
+    const storedRole = (typeof window !== 'undefined' ? localStorage.getItem("role") : null);
 
     if(token){
       setIsLoggedIn(true);
@@ -62,8 +62,8 @@ export function Navbar() {
   }, [open]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
+    (typeof window !== 'undefined' ? localStorage.removeItem("token") : null);
+    (typeof window !== 'undefined' ? localStorage.removeItem("role") : null);
     setIsLoggedIn(false);
     setRole("");
     navigate({to:"/login"});

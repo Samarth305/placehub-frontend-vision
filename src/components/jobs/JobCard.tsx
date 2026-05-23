@@ -9,8 +9,8 @@ export function JobCard({ job , applied , onApplySuccess}: { job: any , applied:
   const navigate = useNavigate();
 
   const handleApply = async () => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
+    const token = (typeof window !== 'undefined' ? localStorage.getItem("token") : null);
+    const role = (typeof window !== 'undefined' ? localStorage.getItem("role") : null);
 
     if (!token) {
       alert("Please login first");

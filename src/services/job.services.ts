@@ -37,3 +37,8 @@ export const getApplicants = async (jobId:String) => {
     const res = await api.get(`/company/jobs/${jobId}/applicants`);
     return res.data;
 }
+
+export const getCompanyDashboardStats = async () => {
+    const res = await api.get("/company/dashboard");
+    return res.data;
+}

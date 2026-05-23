@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PublicLayout } from "@/components/site/PublicLayout";
 import { JobCard } from "@/components/jobs/JobCard";
 import { Input } from "@/components/ui/input";
-// import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Search, MapPin, Filter, BadgeDollarSign, Briefcase } from "lucide-react";
@@ -15,6 +15,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { getJobs } from "@/services/job.services";
 import { getApplications } from "@/services/job.services";
+import { Pagination } from "@/components/ui/pagination";
 
 export const Route = createFileRoute("/jobs")({
   head: () => ({ meta: [{ title: "Jobs — PlaceHub" }, { name: "description", content: "Browse curated jobs and internships from top companies." }] }),
@@ -32,16 +33,22 @@ function JobsPage() {
   // const [type, setType] = useState<(typeof types)[number]>("All");
   const [minSal, setMinSal] = useState([0]);
   const [sortBy, setSortBy] = useState("recent");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const jobsPerPageLimit = 6;
+
+  useEffect(()=>{
+    loadMyApplication();
+  },[]);
 
   useEffect(()=>{
     loadJobs();
-    loadMyApplication();
-  },[]);
+  },[page,q,minSal]);
 
   const loadMyApplication = async () => {
       try {
         //get the token from the localstorage
-        const token = localStorage.getItem("token");
+        const token = (typeof window !== 'undefined' ? localStorage.getItem("token") : null);
 
         //if no token return
         if(!token)return;
@@ -62,9 +69,16 @@ function JobsPage() {
 
   const loadJobs = async () => {
     try {
-      const data = await getJobs();
-      console.log(data);
+      setLoading(true);
+      const data = await getJobs({
+        search:q,
+        minCtc:Number(minSal[0])*100000,
+        page,
+        limit:jobsPerPageLimit
+      });
+      // console.log(data);
       setJobs(data.jobs);
+      setTotalPages(data.totalPages || 1);
     } catch (err) {
       console.log(err);
     } finally{
@@ -77,23 +91,7 @@ function JobsPage() {
       new Set(jobs.map((j)=>j.company?.location))
     ),[jobs]);
 
-  const filtered = [...jobs].filter((j)=>{
-    const okQ =
-      !q ||
-      (j.role + j.company?.name)
-        .toLowerCase()
-        .includes(q.toLowerCase());
-
-    const okL =
-      loc === "all" ||
-      j.company?.location === loc;
-
-    const okS =
-      Number(j.ctc) >= minSal[0] * 100000;
-
-    return okQ && okL && okS;
-
-  }).sort((a,b)=>{
+  const filtered = [...jobs].sort((a,b)=>{
     if(sortBy==="recent"){
       return (new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     }
@@ -113,6 +111,15 @@ function JobsPage() {
     );
   }
 
+  const handleSearchChange = (val: string) => {
+    setQ(val);
+    setPage(1);
+  };
+  const handleSalaryChange = (val: number[]) => {
+    setMinSal(val);
+    setPage(1);
+  };
+
   return (
     <PublicLayout>
       <div className="relative border-b border-border/60">
@@ -127,7 +134,7 @@ function JobsPage() {
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={q}
-                onChange={(e) => setQ(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 placeholder="Search role, company, or skill..."
                 className="h-11 border-border/60 bg-background/40 pl-9"
               />
@@ -179,7 +186,7 @@ function JobsPage() {
               <div className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 <BadgeDollarSign className="h-3.5 w-3.5" /> Min salary (k/yr)
               </div>
-              <Slider value={minSal} onValueChange={setMinSal} min={0} max={200} step={5} />
+              <Slider value={minSal} onValueChange={handleSalaryChange} min={0} max={200} step={5} />
               <div className="mt-2 text-xs text-muted-foreground">₹{minSal[0]}L+</div>
             </div>
 
@@ -213,6 +220,29 @@ function JobsPage() {
           <div className="grid gap-4 md:grid-cols-2">
             {filtered.map((j) => <JobCard key={j.jobId} job={j} applied ={applied.includes(j.jobId)} onApplySuccess={(jobId:string)=>setApplied ((prev)=>[...prev,j.jobId])}/>)}
           </div>
+          {totalPages > 1 && (
+            <div className="mt-8 flex items-center justify-center gap-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                disabled={page === 1}
+              >
+                Previous
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Page <span className="font-semibold text-foreground">{page}</span> of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={page === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          )}
           {filtered.length === 0 && (
             <Card className="border-border/60 bg-card p-12 text-center shadow-card">
               <div className="text-sm font-medium">No results</div>

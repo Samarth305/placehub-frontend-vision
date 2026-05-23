@@ -20,3 +20,8 @@ export const updateProfile = async (data : { name: string; cgpa: number; dept: s
     const res = await api.patch("/student/editProfile",data);
     return res.data;
 }
+
+export const getStudentDashboardStats = async () => {
+    const res = await api.get("/student/dashboard");
+    return res.data;
+}

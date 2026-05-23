@@ -10,8 +10,8 @@ import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/company/jobs")({
    beforeLoad: () => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
+    const token = (typeof window !== 'undefined' ? localStorage.getItem("token") : null);
+    const role = (typeof window !== 'undefined' ? localStorage.getItem("role") : null);
 
     if(!token || role !== "company"){
       throw redirect({to:"/login"});

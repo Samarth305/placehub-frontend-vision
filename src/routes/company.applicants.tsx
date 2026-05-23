@@ -13,8 +13,8 @@ import { updateApplicationStatus } from "@/services/job.services";
 
 export const Route = createFileRoute("/company/applicants")({
    beforeLoad: () => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
+    const token = (typeof window !== 'undefined' ? localStorage.getItem("token") : null);
+    const role = (typeof window !== 'undefined' ? localStorage.getItem("role") : null);
 
     if(!token || role !== "company"){
       throw redirect({to:"/login"});

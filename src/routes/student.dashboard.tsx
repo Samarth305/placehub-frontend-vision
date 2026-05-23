@@ -8,11 +8,13 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { Briefcase, FileText, Trophy, Eye, ArrowRight } from "lucide-react";
 import { applications, jobs } from "@/lib/mock-data";
+import { useEffect, useState } from "react";
+import { getStudentDashboardStats } from "../services/student.service";
 
 export const Route = createFileRoute("/student/dashboard")({
   beforeLoad:() => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
+    const token = (typeof window !== 'undefined' ? localStorage.getItem("token") : null);
+    const role = (typeof window !== 'undefined' ? localStorage.getItem("role") : null);
     if(!token || role !== "student"){
       throw redirect({to:"/login"});
     }
@@ -22,12 +24,45 @@ export const Route = createFileRoute("/student/dashboard")({
 });
 
 function StudentDashboard() {
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const data = await getStudentDashboardStats();
+        setStats(data);
+      } catch (err) {
+        console.error("Failed to load dashboard statistics", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <DashboardLayout role="student" title="Student Dashboard" subtitle="Loading your placement progress...">
+        <div className="p-6 text-center">Loading dashboard...</div>
+      </DashboardLayout>
+    );
+  }
+
+  const formatStatus = (status: string) => {
+    if (!status) return "Applied";
+    return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+  };
+  const applicationsCount = stats?.totalApplications?.length || 0;
+  const shortlistedCount = stats?.shortlisted?.length || 0;
+  const rejectedCount = stats?.rejected?.length || 0;
+  const recentApplications = stats?.totalApplications || [];
+
   return (
     <DashboardLayout role="student" title="Welcome back, Ada" subtitle="Here's what's happening with your applications.">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Applications" value="14" delta={12} icon={FileText} accent="primary" />
-        <MetricCard label="Shortlisted" value="6" delta={8} icon={Trophy} accent="highlight" />
-        <MetricCard label="Interviews" value="3" delta={50} icon={Briefcase} accent="accent" />
+        <MetricCard label="Applications" value={String(applicationsCount)} delta={12} icon={FileText} accent="primary" />
+        <MetricCard label="Shortlisted" value={String(shortlistedCount)} delta={8} icon={Trophy} accent="highlight" />
+        <MetricCard label="Rejected" value={String(rejectedCount)} delta={50} icon={Briefcase} accent="accent" />
         <MetricCard label="Profile views" value="248" delta={-4} icon={Eye} accent="success" />
       </div>
 
@@ -57,14 +92,25 @@ function StudentDashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
-                {applications.slice(0, 5).map((a) => (
-                  <tr key={a.id} className="transition-colors hover:bg-secondary/30">
-                    <td className="px-4 py-3 font-medium">{a.jobTitle}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{a.company}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{a.appliedOn}</td>
-                    <td className="px-4 py-3"><StatusBadge status={a.status} /></td>
+                {recentApplications.slice(0, 5).map((a: any) => (
+                  <tr key={a.applicationId} className="transition-colors hover:bg-secondary/20">
+                    <td className="px-4 py-3 font-medium">{a.job?.role || "N/A"}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{a.job?.company?.name || "N/A"}</td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {a.appliedAt ? new Date(a.appliedAt).toLocaleDateString() : "N/A"}
+                    </td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={formatStatus(a.status)} />
+                    </td>
                   </tr>
                 ))}
+                {recentApplications.length === 0 && (
+                  <tr>
+                    <td colSpan={4} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                      You haven't applied to any jobs yet.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

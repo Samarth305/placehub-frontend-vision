@@ -33,8 +33,8 @@ function LoginPage() {
         res = await loginAdmin({email,password});
       }
 
-      localStorage.setItem("token",res.token);
-      localStorage.setItem("role",res.role);
+      (typeof window !== 'undefined' ? localStorage.setItem("token", res.token) : null);
+      (typeof window !== 'undefined' ? localStorage.setItem("role", res.role) : null);
       window.dispatchEvent(new Event("storage"));
 
       if(role==='student')navigate({to:"/student/dashboard"});

@@ -11,8 +11,8 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/companies")({
    beforeLoad: () => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
+    const token = (typeof window !== 'undefined' ? localStorage.getItem("token") : null);
+    const role = (typeof window !== 'undefined' ? localStorage.getItem("role") : null);
 
     if(!token || role !== "admin"){
       throw redirect({to:"/login"});
