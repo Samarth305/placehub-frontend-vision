@@ -3,13 +3,14 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { MiniChart } from "@/components/dashboard/MiniChart";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
-import { Building2, Users, FileCheck, Clock } from "lucide-react";
+import { Users, Building2, Briefcase, FileText, Loader2, Download, FileCheck, Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { getAdminStats, getPendingCompanies, updateCompanyStatus } from "@/services/admin.service";
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
+import { api } from "@/lib/api";
 
 export const Route = createFileRoute("/admin/dashboard")({
    beforeLoad: () => {
@@ -64,6 +65,29 @@ function AdminDashboard() {
     }
   };
 
+    const handleExportStudents = async () => {
+    try {
+      const response = await api.get('/admin/export/students', {
+        responseType: 'blob', // Crucial: Tell Axios we expect a binary file, not JSON!
+      });
+      
+      // Create a temporary hidden link in the browser to trigger the download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'students_export.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert("Failed to export students.");
+    }
+  };
+
+
   if (loading) {
     return (
       <DashboardLayout role="admin" title="Admin overview" subtitle="System-wide health and pending approvals.">
@@ -74,6 +98,11 @@ function AdminDashboard() {
 
   return (
     <DashboardLayout role="admin" title="Admin overview" subtitle="System-wide health and pending approvals.">
+      <div className="flex justify-end mb-6">
+        <Button onClick={handleExportStudents} className="bg-primary text-primary-foreground">
+          <Download className="mr-2 h-4 w-4" /> Export Students
+        </Button>
+      </div>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard label="Total users" value={stats?.totalStudents || 0} delta={0} icon={Users} accent="primary" />
         <MetricCard label="Verified companies" value={stats?.approvedCompanies || 0} delta={0} icon={Building2} accent="accent" />
