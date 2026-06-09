@@ -102,6 +102,11 @@ function StudentDashboard() {
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={formatStatus(a.status)} />
+                      {a.status === 'INTERVIEW' && a.job?.rounds && (
+                        <div className="text-[10px] mt-1 text-primary font-medium">
+                          {a.job.rounds[a.currentRoundIndex] || `Round ${a.currentRoundIndex + 1}`}
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}

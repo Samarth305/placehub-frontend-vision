@@ -102,7 +102,14 @@ function ApplicationsPage() {
                   <td className="px-5 py-3.5 font-medium">{a.job?.role || "Position"}</td>
                   <td className="px-5 py-3.5 text-muted-foreground">{a.job?.company?.name || "Company"}</td>
                   <td className="px-5 py-3.5 text-muted-foreground">{a.appliedAt ? new Date(a.appliedAt).toLocaleDateString() : "N/A"}</td>
-                  <td className="px-5 py-3.5"><StatusBadge status={formatStatus(a.status)} /></td>
+                  <td className="px-5 py-3.5">
+                    <StatusBadge status={formatStatus(a.status)} />
+                    {a.status === 'INTERVIEW' && a.job?.rounds && (
+                      <div className="text-xs mt-1 text-primary font-medium">
+                        {a.job.rounds[a.currentRoundIndex] || `Round ${a.currentRoundIndex + 1}`}
+                      </div>
+                    )}
+                  </td>
                   <td className="px-5 py-3.5 text-right">
                     <Button size="sm" variant="ghost" className="text-primary hover:text-primary-glow">View</Button>
                   </td>

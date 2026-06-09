@@ -8,8 +8,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Search, Download } from "lucide-react";
 // import { applicants } from "@/lib/mock-data";
 import { useEffect, useState } from "react";
-import { getApplicants } from "@/services/job.services";
-import { updateApplicationStatus } from "@/services/job.services";
+import { getApplicants, advanceApplication, updateApplicationStatus } from "@/services/job.services";
 
 export const Route = createFileRoute("/company/applicants")({
    beforeLoad: () => {
@@ -63,6 +62,19 @@ function ApplicantsPage() {
     }
   }
 
+  const handleAdvance = async(applicationId:string) => {
+    try {
+      const res = await advanceApplication(applicationId);
+      setApplicants((prev)=>prev.map(app=>
+        app.applicationId === applicationId 
+          ? {...app, status: res.updateApplication.status, currentRoundIndex: res.updateApplication.currentRoundIndex} 
+          : app
+      ));
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   const handleSubmit = async (applicationId:string , status: string) => {
     try {
       
@@ -111,18 +123,50 @@ function ApplicantsPage() {
                   <td className="px-5 py-3.5 text-muted-foreground">{a.job.role}</td>
                   <td className="px-5 py-3.5 text-muted-foreground">{a.student.institute}</td>
                   <td className="px-5 py-3.5 text-muted-foreground">{a.student.cgpa}</td>
-                  <td className="px-5 py-3.5"><StatusBadge status={a.status} /></td>
+                  <td className="px-5 py-3.5">
+                    <StatusBadge status={a.status} />
+                    {a.status === 'INTERVIEW' && a.job?.rounds && (
+                      <div className="text-xs mt-1 text-primary font-medium">
+                        {a.job.rounds[a.currentRoundIndex] || `Round ${a.currentRoundIndex + 1}`}
+                      </div>
+                    )}
+                  </td>
                   <td className="px-5 py-3.5 text-right">
                     <div className="flex justify-end gap-2">
                      {a.student.resumeUrl?(
                       <Button size="sm" variant="outline" asChild><a href={a.student.resumeUrl} target="_blank" rel="noopener noreferrer"> Resume</a></Button>
                      ):(
-                       <Button size="sm" variant="outline"  disabled>No Resume</Button>
-                     )
+                       <Button size="sm" variant="outline" disabled>No Resume</Button>
+                     )}
+                     
+                      {a.status !== "REJECTED" && a.status !== "OFFER" && (
+                        <Button 
+                          size="sm" 
+                          className="bg-green-600 hover:bg-green-700" 
+                          onClick={() => handleAdvance(a.applicationId)}
+                        >
+                          {a.status === "INTERVIEW" ? "Next Round" : "Advance"}
+                        </Button>
+                      )}
                       
-                     }
-                      <Button size="sm" className="bg-green-600" onClick={()=>handleStatusUpdate(a.applicationId,"SHORTLISTED")} disabled={a.status==="SHORTLISTED"}>{a.status==="SHORTLISTED"?"Shortlisted":"Shortlist"}</Button>
-                      <Button size="sm" className="destructive" onClick={()=>handleStatusUpdate(a.applicationId,"REJECTED")} disabled={a.status==="REJECTED"}>{a.status==="REJECTED"?"Rejected":"Reject"}</Button>
+                      {a.status === "INTERVIEW" && (
+                        <Button 
+                          size="sm" 
+                          className="bg-primary hover:bg-primary/90" 
+                          onClick={() => handleStatusUpdate(a.applicationId, "OFFER")}
+                        >
+                          Hire (Offer)
+                        </Button>
+                      )}
+
+                      <Button 
+                        size="sm" 
+                        variant="destructive"
+                        onClick={() => handleStatusUpdate(a.applicationId, "REJECTED")} 
+                        disabled={a.status === "REJECTED"}
+                      >
+                        {a.status === "REJECTED" ? "Rejected" : "Reject"}
+                      </Button>
                     </div>
                   </td>
                 </tr>

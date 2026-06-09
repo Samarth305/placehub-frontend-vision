@@ -33,6 +33,11 @@ export const updateApplicationStatus = async (
     return res.data;
 }
 
+export const advanceApplication = async (applicationId: string) => {
+    const res = await api.patch(`/company/applications/${applicationId}/advance`);
+    return res.data;
+}
+
 export const getApplicants = async (jobId:String) => {
     const res = await api.get(`/company/jobs/${jobId}/applicants`);
     return res.data;

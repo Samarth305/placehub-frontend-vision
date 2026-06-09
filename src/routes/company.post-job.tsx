@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { CalendarIcon, Rocket, Link as LinkIcon, IndianRupee, Briefcase } from "lucide-react";
+import { CalendarIcon, Rocket, Link as LinkIcon, IndianRupee, Briefcase, Plus, X } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -32,6 +32,7 @@ function PostJobPage() {
   const [role , setRole] = useState("");
   const [ctc , setCtc] = useState<number>(0);
   const [jdUrl , setJdUrl] = useState("");
+  const [rounds, setRounds] = useState<string[]>(["Aptitude Test"]);
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
@@ -40,7 +41,8 @@ function PostJobPage() {
         role,
         ctc:ctc*100000,
         jdUrl,
-        deadline:date
+        deadline:date,
+        rounds: rounds.filter(r => r.trim() !== "")
       })
       navigate({to:"/company/jobs"});
     } catch (err:any) {
@@ -144,6 +146,51 @@ function PostJobPage() {
                 />
               </div>
               <p className="text-[11px] text-muted-foreground">Link to a PDF or a web page containing full job details.</p>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Interview Pipeline Stages</Label>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-7 border-border/60 text-xs"
+                  onClick={() => setRounds([...rounds, ""])}
+                >
+                  <Plus className="mr-1 h-3 w-3" /> Add Round
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {rounds.map((round, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-md bg-secondary/30 text-xs font-semibold text-muted-foreground">
+                      {index + 1}
+                    </div>
+                    <Input 
+                      placeholder={`e.g. ${index === 0 ? "Online Assessment" : index === 1 ? "Technical Interview" : "HR Round"}`}
+                      value={round}
+                      onChange={(e) => {
+                        const newRounds = [...rounds];
+                        newRounds[index] = e.target.value;
+                        setRounds(newRounds);
+                      }}
+                      className="border-border/60 bg-background/40 focus:ring-primary/40"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 text-muted-foreground hover:text-destructive"
+                      onClick={() => setRounds(rounds.filter((_, i) => i !== index))}
+                      disabled={rounds.length === 1}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[11px] text-muted-foreground">Define the stages applicants will go through. You can advance them through these rounds later.</p>
             </div>
 
             <div className="pt-4">
